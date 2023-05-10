@@ -24,8 +24,8 @@ class FaceCrop:
                 print("No faces detected!")
                 continue
             for x, y, w, h in faces:
-                roi_color = img[y : y + h, x : x + w]
-                cv2.imwrite(os.path.join(self.output_folder, filename), roi_color)
+                # roi_color = img[y : y + h, x : x + w]
+                # cv2.imwrite(os.path.join(self.output_folder, filename), roi_color)
                 self.preprocess_images.append(
                     {"x": x, "y": y, "w": w, "h": h, "image": img, "filename": filename}
                 )
