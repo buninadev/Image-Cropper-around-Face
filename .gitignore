@@ -1,0 +1,10 @@
+env
+venv
+.vscode
+
+*/*.jpg
+*/*.jpeg
+*/*.png
+
+*/__pycache__
+*/*.pyc
