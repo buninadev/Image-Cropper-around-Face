@@ -2,9 +2,12 @@ env
 venv
 .vscode
 
-*/*.jpg
-*/*.jpeg
-*/*.png
+*.jpg
+*.jpeg
+*.png
+*.mp4
 
 */__pycache__
 */*.pyc
+
+*.mp4
