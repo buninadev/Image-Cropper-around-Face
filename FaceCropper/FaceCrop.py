@@ -22,44 +22,46 @@ class FaceCrop:
 
     def detect_faces(self):
         for filename in os.listdir(self.input_folder):
-            print("Processing file: {}".format(filename))
             if not filename.endswith(".jpg") and not filename.endswith(".png"):
                 print("Not an image! Skipping file: {}".format(filename))
                 continue
             img = cv2.imread(os.path.join(self.input_folder, filename))
-            image_to_detect = self.enhance_images(img)
-            faces = self.face_cascade.detectMultiScale(image_to_detect, 1.05, 7)
-            # self.face_detector.setInputSize(
-            #     (image_to_detect.shape[1], image_to_detect.shape[0])
-            # )
-            # faces = self.face_detector.detect(image_to_detect)
-            self.number_of_images += 1
-            if len(faces) == 0:
-                print("No faces detected!")
-                cv2.imwrite(
-                    os.path.join(
-                        self.output_folder, "undetected", "undetected-" + filename
-                    ),
-                    img,
-                )
+            try:
+                image_to_detect = self.enhance_images(img)
+                faces = self.face_cascade.detectMultiScale(image_to_detect, 1.05, 7)
+                # self.face_detector.setInputSize(
+                #     (image_to_detect.shape[1], image_to_detect.shape[0])
+                # )
+                # faces = self.face_detector.detect(image_to_detect)
+                self.number_of_images += 1
+                if len(faces) == 0:
+                    cv2.imwrite(
+                        os.path.join(
+                            self.output_folder, "undetected", "undetected-" + filename
+                        ),
+                        img,
+                    )
+                    continue
+                filtered_faces = faces
+                if len(faces) > 1:
+                    filtered_faces = self.filter_closer_to_center(faces, img)
+                for i, (x, y, w, h) in enumerate(filtered_faces):
+                    self.preprocess_images.append(
+                        {
+                            "x": x,
+                            "y": y,
+                            "w": w,
+                            "h": h,
+                            "image": img,
+                            "filename": f"face-{i}-" + filename,
+                        }
+                    )
+                    if i == 2:
+                        break
+            except Exception as e:
+                with open("logs.txt", "w") as f:
+                    f.write(filename + " Error: \n" + str(e) + "\n")
                 continue
-            filtered_faces = faces
-            if len(faces) > 1:
-                filtered_faces = self.filter_closer_to_center(faces, img)
-            for i, (x, y, w, h) in enumerate(filtered_faces):
-                self.preprocess_images.append(
-                    {
-                        "x": x,
-                        "y": y,
-                        "w": w,
-                        "h": h,
-                        "image": img,
-                        "filename": f"face-{i}-" + filename,
-                    }
-                )
-                print("Face detected!")
-                if i == 2:
-                    break
 
     def crop_around_faces(self):
         print("Cropping around faces...")
@@ -112,8 +114,6 @@ class FaceCrop:
                 cv2.imwrite(
                     os.path.join(self.output_folder, "crop-" + filename), roi_color
                 )
-                print(f"{filename} cropped successfully! ")
-                print(f"width: {x2-x1} | height: {y2-y1}")
                 self.number_of_cropped_images += 1
             except Exception as e:
                 print(f"Error: {e}")

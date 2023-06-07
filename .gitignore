@@ -11,3 +11,5 @@ venv
 */*.pyc
 
 *.mp4
+
+logs.txt
